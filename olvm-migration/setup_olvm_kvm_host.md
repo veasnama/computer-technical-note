@@ -11,7 +11,7 @@
   ```
   yum install oracle-ovirt-release-el7 -y
   ```
-- Clear yum cacche
+- Clear yum cache
   ```
   yum clean all
   ```
