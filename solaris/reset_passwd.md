@@ -12,8 +12,12 @@
 ---
 1.  <b>Boot from the Oracle Solaris Media</b> <a name="iso"></a>
 - Stop and bring the system to OK prompt (SPARC) or BIOS (x86) and Boot from the Oracle Solaris media(installation media or from the network), then select the Shell option (option 3).
+---
+
 ![media screen](https://thegeekshub.com/wp-content/uploads/2022/03/oracle-solaris-installation-menu.jpg)
 
+
+---
 
 2.  <b>Import the root pool</b> <a name="#rootpool"></a>
 - Import the root pool, Mostly the pool name for root file system is rpool. 
