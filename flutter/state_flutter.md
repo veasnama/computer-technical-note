@@ -23,7 +23,7 @@
 - For example, below, you see how the currently selected item in a bottom navigation bar is held in the _index field of the _MyHomepageState class. In this example, _index is ephemeral state.
 
 
-```
+```dart
     class MyHomepage extends StatefulWidget {
     const MyHomepage({Key? key}) : super(key: key);
 
