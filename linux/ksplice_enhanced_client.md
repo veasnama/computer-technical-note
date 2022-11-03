@@ -25,6 +25,12 @@
 # ksplice user upgrade
 ```
 
+## To upgrade all patches both kernel and user space run
+
+```
+# ksplice all upgrade
+```
+
 ## Tips to list all of the running user space processes that the client can patch
 
 ```
