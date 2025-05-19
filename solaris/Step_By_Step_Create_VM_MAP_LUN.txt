@@ -1,0 +1,108 @@
+==== On ZFS level =====
+- Taking a snapshot (BUI) on current LUN VM.
+
+1. Go to the share or project you want to snapshot
+2. To take a snapshot of a LUN, go to Shares > Shares and click LUNs
+3. Hover over the share or project and click the Edit icon
+4. Click the Snapshots tab
+5. Click the Add icon +  next to Snapshots
+6. Type a name for the snapshot
+7. Click APPLY
+
+- Cloning a snapshot (BUI)
+
+1. Go to the share you want to clone
+2. To clone a filesystem, go to Shares > Shares.
+3. Hover over the share and click the Edit icon
+4. Click the Snapshots tab
+5. Hover over the snapshot you want to clone and click the Clone icon
+
+A dialog box appears with settings and options for the new clone
+
+6. Set each field appropriately
+7. Click APPLY to confirm the settings and create the clone
+
+==== On Solaris level ===== 
+
+- Create new guest domain 
+
+- Check map disk id from zfs storage by execute below: 
+
+# echo | format -e 
+
+# ldm list 
+
+# ldm add DR-TEST-POOL
+
+# ldm add-vcpu 6 DR-TEST-POOL
+
+# ldm add-memory 8G  DR-TEST-POOL
+
+# ldm set-mau 1 
+
+- Adding physical disk to guest domain
+
+# ldm add-vdsdev /dev/dsk/disk-id-lun1 lun_clone@ldom-vds 
+# ldm add-vdisk LUN_CLONE lun_clone@ldom-vds DR-TEST-POOL
+
+# ldm add-vdsdev /dev/dsk/disk-id-lun2 new_lun@ldom-vds
+# ldm add-vdisk NEW_LUN new_lun@ldom-vds DR-TEST-POOL
+
+- Adding a local volume  for OS disk
+
+# zfs create -V 40G ldompool/OS_TEST_POOL
+# ldm add-vdsdev /dev/zvol/dsk/ldompool/OS_TEST_POOL vol_os_test@ldom-vds
+# ldm add-vdisk OS_DISK_TEST_POOL vol_os_test@ldom-vds DR-TEST-POOL
+
+# ldm set-var auto-boot?=false DR-TEST-POOL 
+# ldm set-var boot-device=OS_DISK_TEST_POOL  DR-TEST-POOL
+
+# ldm add-vdisk solaris_iso_11 ios@ldom-vds DR-TEST-POOL
+
+- Bind and Start installation guest domain 
+# ldm bind DR-TEST-POOL
+# ldm start DR-TEST-POOL
+
+ok> devalias
+ok> boot solaris_iso_11
+
+- Connect the guest domain
+# ldm list 
+
+# telnet 0 console-id
+
+- After done os installation run below command to for importable zpool
+
+DR-TEST-POOL# zpool import 
+
+
+DR-TEST-POOL# zpool status -v weblogic_pool
+
+* If the status fine we're done since no corrupted object after import 
+* If pool still has corrupted objects follow as below.
+
+DR-TEST-POOL# echo | format -e 
+
+DR-TEST-POOL# zpool create test_pool disk_id   <== where disk_id previous command output 
+
+- Create snapshot from imported weblogic_pool 
+
+DR-TEST-POOL# zfs snapshot weblogic_pool@full_backup
+
+DR-TEST-POOL# zfs send -R weblogic_pool@full_backup | pv | zfs receive -Fdvu  test_pool
+
+Where 
+- "pv" addition monitors the progress, so you see how many MM/sec is transferred ,etc.
+- "-F" (Force): Forces the receive operation, overwriting any existing snapshots
+- "v" (Verbose): Outputs detailed information
+- "-u" (Unmounted): Prevents the received filesystem from being mounted automatically
+This is useful if you want to keep the received data unmounted for later use or manual mountinga
+
+- When restoration done check the new pool status 
+
+DR-TEST-POOL# zpool status -v test_pool
+
+
+
+
+ 
